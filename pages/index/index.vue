@@ -1,5 +1,8 @@
 <template>
 	<view class="page">
+		<uni-popup ref="popupMsg" type="top">
+			<uni-popup-message type="success" :message="'接收到' + lastRows + '条新消息'" :duration="2000"></uni-popup-message>
+		</uni-popup>
 		<swiper circular="true" interval="8000" duration="1000" class="swiper">
 			<swiper-item>
 				<image mode="widthFix" src="https://arver-oa-1.oss-cn-beijing.aliyuncs.com/img/banner/swiper-1.jpg">
@@ -22,7 +25,7 @@
 				</image>
 			</swiper-item>
 		</swiper>
-		<view class="notify-container">
+		<view class="notify-container" @tap="toPage('消息提醒', '/pages/message_list/message_list')">
 			<view class="notify-title">
 				<image src="../../static/icon-1.png" mode="widthFix" class="notify-icon"></image>
 				消息提醒
@@ -92,14 +95,55 @@
 </template>
 
 <script>
+	import uniPopup from '../../components/uni-popup/uni-popup.vue'
+	import uniPopupMessage from '../../components/uni-popup/uni-popup-message.vue';
+	import uniPopupDialog from '../../components/uni-popup/uni-popup-dialog.vue';
+	import {url} from '../../const/index.js';
+	import {request} from '../../util/index.js';
+	
 	export default {
+		components: {
+			uniPopup,
+			uniPopupMessage,
+			uniPopupDialog
+		},
 		data() {
 			return {
-				unreadRows: 0
+				timer: null,
+				unreadRows: 0,
+				lastRows: 0
 			}
 		},
 		onLoad() {
-
+			uni.$on("showMessage", () => {
+				this.$refs.popupMsg.open();
+			})
+			const that = this;
+			request.get(url.refreshMessage, null, (resp) => {
+				that.unreadRows = resp.data.unreadRows;
+				that.lastRows = resp.data.lastRows;
+				if (that.lastRows > 0) {
+					uni.$emit('showMessage');
+				}
+			});
+		},
+		onUnload() {
+			uni.$off("showMessage");
+		},
+		onShow() {
+			const that = this;
+			that.timer = setInterval(() => {
+				request.get(url.refreshMessage, null, (resp) => {
+					that.unreadRows = resp.data.unreadRows;
+					that.lastRows = resp.data.lastRows;
+					if (that.lastRows > 0) {
+						uni.$emit('showMessage');
+					}
+				});
+			}, 5 * 1000);
+		},
+		onHide() {
+			clearInterval(this.timer);
 		},
 		methods: {
 			toPage: function(name, url) {

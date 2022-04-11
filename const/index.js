@@ -7,7 +7,12 @@ const url = {
 	validCanCheckIn: baseUrl + '/checkin/validCanCheckin',
 	searchTodayCheckin: baseUrl + '/checkin/searchTodayCheckin',
 	searchUserSummary: baseUrl + '/user/searchUserSummary',
-	searchMonthCheckin: baseUrl + '/checkin/searchMonthCheckin'
+	searchMonthCheckin: baseUrl + '/checkin/searchMonthCheckin',
+	refreshMessage: baseUrl + '/message/refreshMessage',
+	searchMessageByPage: baseUrl + '/message/searchMessageByPage',
+	searchMessageById: baseUrl + '/message/searchMessageById',
+	updateUnreadMessage: baseUrl + '/message/updateUnreadMessage',
+	deleteMessageRefById: baseUrl + '/message/deleteMessageRefById'
 };
 
 
